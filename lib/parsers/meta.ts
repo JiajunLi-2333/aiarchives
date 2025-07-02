@@ -3,12 +3,7 @@ import type { Conversation } from '@/types/conversation';
 /**
  * Extracts a Meta share page into a structured Conversation.
  */
-interface Conversation {
-  model: string;
-  content: string;
-  scrapedAt: string;
-  sourceHtmlBytes: number;
-}
+
 export async function parseMeta(html: string): Promise<Conversation> {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
