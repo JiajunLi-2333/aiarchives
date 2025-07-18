@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
     // Parse the conversation from HTML
     const html = await file.text();
     const conversation = await parseHtmlToConversation(html, model);
+    //! missed log information here
     console.log('conversation =>', conversation.model, conversation.content);
 
     // Generate a unique ID for the conversation
