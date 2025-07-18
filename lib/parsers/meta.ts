@@ -12,10 +12,13 @@ export async function parseMeta(html: string): Promise<Conversation> {
   //Helper function to clean the head element
   function cleanHead(originalHead: HTMLHeadElement): HTMLHeadElement{
     const newHead = dom.window.document.createElement('head');
-    const cssElements = originalHead.querySelectorAll('style, link[rel = "stylesheet"]');
+    const cssElements = originalHead.querySelectorAll('style, link[rel="stylesheet"]');
     for (const cssElement of cssElements) {
       newHead.appendChild(cssElement.cloneNode(true));
     }
+    const customStyle = dom.window.document.createElement('style');
+    customStyle.textContent = 'div[role="button"] { display: none !important; } [data-pagelet] { display: none !important; }';
+    newHead.appendChild(customStyle);
     return newHead;
   }
 
@@ -32,7 +35,6 @@ export async function parseMeta(html: string): Promise<Conversation> {
     }
     return false;
   }
-
   const head = document.head;
   const body = document.body;
 
@@ -45,19 +47,19 @@ export async function parseMeta(html: string): Promise<Conversation> {
     };
   }
 
-  // Step 1: Get all direct children of body
+  //Get all direct children of body
   const bodyChildren = Array.from(body.childNodes);
   
-  // Step 2: Filter to keep only div elements (remove scripts and other elements)
+  //Filter to keep only div elements (remove scripts and other elements)
   const divElements = bodyChildren.filter(child => 
     child.nodeType === dom.window.Node.ELEMENT_NODE && 
     (child as Element).tagName.toLowerCase() === 'div'
   ) as Element[];
 
-  // Step 3: For each div, check if it or its descendants have text content
+  //For each div, check if it or its descendants have text content
   const selectedDivs = divElements.filter(div => hasTextContent(div));
 
-  // If no divs found, return empty conversation
+  // return early if no such valid divs are found
   if (selectedDivs.length === 0) {
     return {
       content: '',
@@ -67,7 +69,9 @@ export async function parseMeta(html: string): Promise<Conversation> {
     };
   }
 
-  // Step 4: Reconstruct the HTML with preserved head and filtered body content
+  // selectedDivs.forEach(div => removeEmptyStyledElements(div));
+
+  // Reconstruct the HTML with preserved head and filtered body content
   const newDOM = new JSDOM('<!DOCTYPE html><html></html>');
   const newDOC = newDOM.window.document;
 
