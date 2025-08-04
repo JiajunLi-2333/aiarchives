@@ -73,8 +73,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Parse the conversation from HTML
-    const html = await file.text();
-    const conversation = await parseHtmlToConversation(html, model);
+    const skipScraping = formData.has('skipScraping');
+    let conversation;
+    if(!skipScraping){
+      const html = await file.text();
+      conversation = await parseHtmlToConversation(html, model);
+    }
+    else{
+      conversation = {
+        model: model,
+        content: await file.text(),
+        scrapedAt: new Date().toISOString(),
+        sourceHtmlBytes: (file as Blob).size,
+      }
+    }
     //! missed log information here problem fixed
     console.log('conversation =>', conversation.model, conversation.content);
 
